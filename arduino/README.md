@@ -1,4 +1,6 @@
 # Arduino Controller, *Groid*
+This code was built to run on an Arduino Mega 2560. Download the Arduino IDE from https://www.arduino.cc/en/main/software.
+
 ## Synopsis
 Commands sent to the Arduino's serial connection should be done so in the form "angle,power".
 
