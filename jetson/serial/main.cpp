@@ -4,7 +4,7 @@
 
 #define ARDUINO_PORT "/dev/ttyS3"
 
-#include "ArduinoController.h"
+#include "arduino_controller.h"
 
 int main()
 {
