@@ -8,7 +8,7 @@ The [Griffith Innovate](https://griffithinnovate.org/) team's entry uses an [Ard
 
 * [Visual Studio Code](https://code.visualstudio.com/) - The code editor of choice
 * [Arduino](https://www.arduino.cc/reference/en/) - Microcontroller for servos
-* [OpenCV 2.4.10.1]([https://opencv.org/](https://developer.nvidia.com/jetson-tk1-development-pack-1_0)) - Vision processing
+* [OpenCV 2.4.10.1](https://developer.nvidia.com/jetson-tk1-development-pack-1_0) - Vision processing
 
 ## License
 
