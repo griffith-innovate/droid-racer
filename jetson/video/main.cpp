@@ -7,7 +7,7 @@
 
 cv::Rect getROI(cv::Mat*);
 void drawHyperplane(cv::Mat*, cv::Point2f, cv::Point2f, cv::Scalar);
-
+void drawStaticCrosshair(cv::Mat*);
 int capDev = 0;
 
 int main(int, char**) {
@@ -33,27 +33,25 @@ int main(int, char**) {
         // Get next frame from camera and crop to ROI.
         cap >> frame;
 
-        // Reduce to ROI.
-        frame = frame(ROI);
-
         // Blur frame.
-        GaussianBlur(frame, edges, cv::Size(7, 7), 4, 4);
+        // Old: GaussianBlur(frame, edges, cv::Size(7, 7), 4, 4);
+        bilateralFilter(frame, edges, 9, 50, 50);
 
         // Convert frame to HSV.
         cvtColor(edges, edges, cv::COLOR_BGR2HSV);
-        imshow("Colors", edges);
+        // imshow("Colors", edges);
 
         // Reduce to color range seeking
         inRange(edges, rgbLower, rgbUpper, edges);
-        imshow("Range", edges);
+        // imshow("Range", edges);
 
         // Apply Canny edge detection.
         Canny(edges, edges, 0, 30, 3);
-        imshow("Canny", edges);
+        // imshow("Canny", edges);
 
         // Apply Hough Transform line detection and draw hyperplanes.
         std::vector<cv::Vec4i> lines;
-        HoughLinesP(edges, lines, 1, CV_PI / 180, 50, 50, 5);
+        HoughLinesP(edges, lines, 1, CV_PI / 180, 50, 50, 10);
         for (size_t j = 0; j < lines.size(); j++) {
             cv::Vec4i l = lines[j];
             drawHyperplane(&frame, cv::Point(l[0], l[1]), cv::Point(l[2], l[3]),
@@ -62,8 +60,11 @@ int main(int, char**) {
                      cv::Scalar(255, 255, 255), 2, CV_AA);
         }
 
-        // Show frame.
-        imshow("Lines", frame);
+        // Apply crosshairs
+        drawStaticCrosshair(&frame);
+
+        // Show frame
+        imshow("Lines - seeking: blues", frame);
 
         if (cv::waitKey(30) >= 0) {
             std::cout << "Terminating." << std::endl;
@@ -109,4 +110,33 @@ void drawHyperplane(cv::Mat* frame, cv::Point2f p1, cv::Point2f p2,
     }
 
     cv::line(*frame, p, q, colour, 1);
+}
+
+void drawStaticCrosshair(cv::Mat* frame) {
+    int x_min = 0;
+    int x_max = frame->cols;
+    int x_mid = x_max / 2;
+    int y_min = 0;
+    int y_max = frame->rows;
+    int y_mid = y_max / 2;
+
+    // Draw horizontal bar
+    cv::line(*frame, cv::Point2i(x_min, y_mid), cv::Point2i(x_max, y_mid),
+             cv::Scalar(255, 255, 255), 1);
+
+    // Draw vertical bar
+    cv::line(*frame, cv::Point2i(x_mid, y_min), cv::Point2i(x_mid, y_max),
+             cv::Scalar(255, 255, 255), 1);
+
+    // Draw top-left flavour
+    cv::line(*frame, cv::Point2i(x_mid - 2, y_mid - 32),
+             cv::Point2i(x_mid - 2, y_mid - 2), cv::Scalar(255, 255, 255), 1);
+    cv::line(*frame, cv::Point2i(x_mid - 42, y_mid - 2),
+             cv::Point2i(x_mid - 2, y_mid - 2), cv::Scalar(255, 255, 255), 1);
+
+    // Draw bottom-right flavour
+    cv::line(*frame, cv::Point2i(x_mid + 2, y_mid + 32),
+             cv::Point2i(x_mid + 2, y_mid + 2), cv::Scalar(255, 255, 255), 1);
+    cv::line(*frame, cv::Point2i(x_mid + 42, y_mid + 2),
+             cv::Point2i(x_mid + 2, y_mid + 2), cv::Scalar(255, 255, 255), 1);
 }
